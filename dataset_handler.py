@@ -13,6 +13,7 @@ class Dataset_handler():
         self.__attributes = list(data_dict.keys())
         self.__encodable_labels = encodable_attributes
         self.__encoder_dict = {}
+        self.num_of_samples = len(data_dict[self.__attributes[0]])
 
         for i in encodable_attributes:
             self.__encoder_dict[i] = Label_encoder(data_dict[i])
