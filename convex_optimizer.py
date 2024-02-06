@@ -94,69 +94,69 @@ class Optimizer:
 
 
 #   TV original
-    # def optimize(self, eps, min_utility_err, max_var):
-    #     # max_var = 0.4
-    #     # Define the optimization variable
-    #     X = cp.Variable((self.STATE_COUNT, self.STATE_COUNT))
+    def optimize(self, eps, min_utility_err, max_var):
+        # max_var = 0.4
+        # Define the optimization variable
+        X = cp.Variable((self.STATE_COUNT, self.STATE_COUNT))
 
-    #     # Objective function
-    #     objective = cp.Minimize(np.transpose(self.prior_dist)@cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1)) #cp.Minimize((X@np.transpose(U))@Z)
-    #     # objective = cp.Minimize((np.transpose(self.prior_dist)@cp.square(cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1))-min_utility_err**2))
-    #     # Constraints
-    #     X_T = X.T
-    #     Y = X_T@self.prior_dist
-    #     constraints = [cp.sum(X, axis=1) == 1,  # Each row sums to 1
-    #                 X >= 0.000001] # Non-negative elements
+        # Objective function
+        objective = cp.Minimize(np.transpose(self.prior_dist)@cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1)) #cp.Minimize((X@np.transpose(U))@Z)
+        # objective = cp.Minimize((np.transpose(self.prior_dist)@cp.square(cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1))-min_utility_err**2))
+        # Constraints
+        X_T = X.T
+        Y = X_T@self.prior_dist
+        constraints = [cp.sum(X, axis=1) == 1,  # Each row sums to 1
+                    X >= 0.000001] # Non-negative elements
         
-    #     # if max_var != 0:
-    #     #     # constraints.append(np.transpose(self.prior_dist)@cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1)<= max_var)
-    #     #     constraints.append((np.transpose(self.prior_dist)@cp.square(cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1))-min_utility_err**2) <= max_var)
-    #         # print("Add constraint ", constraints[-1])
-    #     if self.__is_kl_div:  # KL divergence
-    #         # constraints.append(cp.sum(cp.kl_div(Y, self.prior_dist)) <= self.ALPHA)
-    #         constraints.append((0.5 * cp.sum(cp.abs(Y - self.prior_dist))) <= self.ALPHA)
+        # if max_var != 0:
+        #     # constraints.append(np.transpose(self.prior_dist)@cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1)<= max_var)
+        #     constraints.append((np.transpose(self.prior_dist)@cp.square(cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1))-min_utility_err**2) <= max_var)
+            # print("Add constraint ", constraints[-1])
+        if self.__is_kl_div:  # KL divergence
+            # constraints.append(cp.sum(cp.kl_div(Y, self.prior_dist)) <= self.ALPHA)
+            constraints.append((0.5 * cp.sum(cp.abs(Y - self.prior_dist))) <= self.ALPHA)
 
-    #     # Adding KL divergence constraints for each row
-    #     for i in range(self.STATE_COUNT):
-    #         for j in range(self.STATE_COUNT):
-    #             for k in range(self.STATE_COUNT):
-    #                 if j == k:
-    #                     continue
-    #                 constraints.append(X[j, i] - np.exp(eps)*X[k, i] <= 0)
-    #                 # print(f"X[{j}, {i}] - np.exp(EPS)*X[{k}, {i}] <= 0")
+        # Adding KL divergence constraints for each row
+        for i in range(self.STATE_COUNT):
+            for j in range(self.STATE_COUNT):
+                for k in range(self.STATE_COUNT):
+                    if j == k:
+                        continue
+                    constraints.append(X[j, i] - np.exp(eps)*X[k, i] <= 0)
+                    # print(f"X[{j}, {i}] - np.exp(EPS)*X[{k}, {i}] <= 0")
 
-    #     # Define and solve the problem
-    #     problem = cp.Problem(objective, constraints)
+        # Define and solve the problem
+        problem = cp.Problem(objective, constraints)
 
-    #     if self.solver == "SCS":
-    #         scs_parameters = {
-    #                             # 'max_iters': 6000,        # Maximum number of iterations
-    #                             'eps': 1e-4,              # Convergence tolerance
-    #                             # 'alpha': 1.5,             # Relaxation parameter
-    #                             # 'rho_x': 1e-5,            # Balances primal and dual progress
-    #                             # 'scale': 1,               # Scaling parameter for data matrix
-    #                             'warm_start': False,       # Use solution from previous call as a starting point
-    #                             'acceleration_lookback': 1, # Memory of the acceleration method
-    #                             # 'normalize': True,        # Automatically scale the data
-    #                             'verbose': False           # Print out progress information
-    #                         }
+        if self.solver == "SCS":
+            scs_parameters = {
+                                # 'max_iters': 6000,        # Maximum number of iterations
+                                'eps': 1e-4,              # Convergence tolerance
+                                # 'alpha': 1.5,             # Relaxation parameter
+                                # 'rho_x': 1e-5,            # Balances primal and dual progress
+                                # 'scale': 1,               # Scaling parameter for data matrix
+                                'warm_start': False,       # Use solution from previous call as a starting point
+                                'acceleration_lookback': 1, # Memory of the acceleration method
+                                # 'normalize': True,        # Automatically scale the data
+                                'verbose': False           # Print out progress information
+                            }
             
-    #         problem.solve(solver=cp.SCS, **scs_parameters)
-    #     elif self.solver == "MOSEK":
-    #         problem.solve(solver=cp.MOSEK, verbose=False)
-    #     else:
-    #         assert(f"Unkwon solver {self.solver}")
+            problem.solve(solver=cp.SCS, **scs_parameters)
+        elif self.solver == "MOSEK":
+            problem.solve(solver=cp.MOSEK, verbose=False)
+        else:
+            assert(f"Unkwon solver {self.solver}")
 
-    #     # Output the optimized matrix
-    #     matrix = np.maximum(np.array(X.value), 0)
-    #     row_sums = matrix.sum(axis=1, keepdims=True)
+        # Output the optimized matrix
+        matrix = np.maximum(np.array(X.value), 0)
+        row_sums = matrix.sum(axis=1, keepdims=True)
 
-    #     # print("var ", np.dot(np.transpose(self.prior_dist), np.square(np.sum(np.multiply(matrix/row_sums, self.normalized_objective_err_matrix), axis=1))) - 0.4**2)
-    #     # print("Expected val ", np.dot(np.transpose(self.prior_dist), np.sum(np.multiply(matrix/row_sums, self.normalized_objective_err_matrix), axis=1)))
-    #     # print("Optimized Matrix P:\n", X.value)
-    #     # print("Original Distribution Z:\n", Z)
-    #     # print("Perturbed Distribution Z:\n", np.matmul(np.transpose(Z),(matrix/row_sums)))
-    #     return {"utility": objective.value, "mechanism": matrix/row_sums}
+        # print("var ", np.dot(np.transpose(self.prior_dist), np.square(np.sum(np.multiply(matrix/row_sums, self.normalized_objective_err_matrix), axis=1))) - 0.4**2)
+        # print("Expected val ", np.dot(np.transpose(self.prior_dist), np.sum(np.multiply(matrix/row_sums, self.normalized_objective_err_matrix), axis=1)))
+        # print("Optimized Matrix P:\n", X.value)
+        # print("Original Distribution Z:\n", Z)
+        # print("Perturbed Distribution Z:\n", np.matmul(np.transpose(Z),(matrix/row_sums)))
+        return {"utility": objective.value, "mechanism": matrix/row_sums}
 
 
     # def optimize(self, eps, min_utility_err, max_var):
@@ -371,55 +371,55 @@ class Optimizer:
     #     # print("Perturbed Distribution Z:\n", np.matmul(np.transpose(Z),(matrix/row_sums)))
     #     return {"utility": objective.value, "mechanism": matrix/row_sums}
 
-    def optimize(self, eps, min_utility_err, max_var):
-        # max_var = 0.4
-        # Define the optimization variable
-        X = cp.Variable((self.STATE_COUNT, self.STATE_COUNT))
-
-        # Objective function
-        new_error_matrix = self.normalized_objective_err_matrix * np.reshape((1-np.array(self.prior_dist)), (-1,))[np.newaxis, :]
-        # print((new_error_matrix))
-        objective = cp.Minimize(np.transpose(self.prior_dist)@cp.sum(cp.multiply(X, new_error_matrix), axis=1)) #cp.Minimize((X@np.transpose(U))@Z)
-        # objective = cp.Minimize((np.transpose(self.prior_dist)@cp.square(cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1))-min_utility_err**2))
-        # Constraints
-        X_T = X.T
-        Y = X_T@self.prior_dist
-        constraints = [cp.sum(X, axis=1) == 1,  # Each row sums to 1
-                    X >= 0.000001] # Non-negative elements
-        
-        # if max_var != 0:
-        #     # constraints.append(np.transpose(self.prior_dist)@cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1)<= max_var)
-        #     constraints.append((np.transpose(self.prior_dist)@cp.square(cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1))-min_utility_err**2) <= max_var)
-            # print("Add constraint ", constraints[-1])
-        if self.__is_kl_div:  # KL divergence
-            constraints.append(cp.sum(cp.kl_div(Y, self.prior_dist)) <= self.ALPHA)
-
-        # Adding KL divergence constraints for each row
-        for i in range(self.STATE_COUNT):
-            for j in range(self.STATE_COUNT):
-                for k in range(self.STATE_COUNT):
-                    if j == k:
-                        continue
-                    constraints.append(X[j, i] - np.exp(eps)*X[k, i] <= 0)
-                    # print(f"X[{j}, {i}] - np.exp(EPS)*X[{k}, {i}] <= 0")
-
-        # Define and solve the problem
-        problem = cp.Problem(objective, constraints)
-
-        if self.solver == "SCS":
-            problem.solve(solver=cp.SCS, verbose=False)
-        elif self.solver == "MOSEK":
-            problem.solve(solver=cp.MOSEK, verbose=False)
-        else:
-            assert(f"Unkwon solver {self.solver}")
-
-        # Output the optimized matrix
-        matrix = np.maximum(np.array(X.value), 0)
-        row_sums = matrix.sum(axis=1, keepdims=True)
-
-        # print("var ", np.dot(np.transpose(self.prior_dist), np.square(np.sum(np.multiply(matrix/row_sums, self.normalized_objective_err_matrix), axis=1))) - 0.4**2)
-        # print("Expected val ", np.dot(np.transpose(self.prior_dist), np.sum(np.multiply(matrix/row_sums, self.normalized_objective_err_matrix), axis=1)))
-        # print("Optimized Matrix P:\n", X.value)
-        # print("Original Distribution Z:\n", Z)
-        # print("Perturbed Distribution Z:\n", np.matmul(np.transpose(Z),(matrix/row_sums)))
-        return {"utility": objective.value, "mechanism": matrix/row_sums}
+    # def optimize(self, eps, min_utility_err, max_var):
+    #     # max_var = 0.4
+    #     # Define the optimization variable
+    #     X = cp.Variable((self.STATE_COUNT, self.STATE_COUNT))
+    #
+    #     # Objective function
+    #     new_error_matrix = self.normalized_objective_err_matrix * np.reshape((1-np.array(self.prior_dist)), (-1,))[np.newaxis, :]
+    #     # print((new_error_matrix))
+    #     objective = cp.Minimize(np.transpose(self.prior_dist)@cp.sum(cp.multiply(X, new_error_matrix), axis=1)) #cp.Minimize((X@np.transpose(U))@Z)
+    #     # objective = cp.Minimize((np.transpose(self.prior_dist)@cp.square(cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1))-min_utility_err**2))
+    #     # Constraints
+    #     X_T = X.T
+    #     Y = X_T@self.prior_dist
+    #     constraints = [cp.sum(X, axis=1) == 1,  # Each row sums to 1
+    #                 X >= 0.000001] # Non-negative elements
+    #
+    #     # if max_var != 0:
+    #     #     # constraints.append(np.transpose(self.prior_dist)@cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1)<= max_var)
+    #     #     constraints.append((np.transpose(self.prior_dist)@cp.square(cp.sum(cp.multiply(X, self.normalized_objective_err_matrix), axis=1))-min_utility_err**2) <= max_var)
+    #         # print("Add constraint ", constraints[-1])
+    #     if self.__is_kl_div:  # KL divergence
+    #         constraints.append(cp.sum(cp.kl_div(Y, self.prior_dist)) <= self.ALPHA)
+    #
+    #     # Adding KL divergence constraints for each row
+    #     for i in range(self.STATE_COUNT):
+    #         for j in range(self.STATE_COUNT):
+    #             for k in range(self.STATE_COUNT):
+    #                 if j == k:
+    #                     continue
+    #                 constraints.append(X[j, i] - np.exp(eps)*X[k, i] <= 0)
+    #                 # print(f"X[{j}, {i}] - np.exp(EPS)*X[{k}, {i}] <= 0")
+    #
+    #     # Define and solve the problem
+    #     problem = cp.Problem(objective, constraints)
+    #
+    #     if self.solver == "SCS":
+    #         problem.solve(solver=cp.SCS, verbose=False)
+    #     elif self.solver == "MOSEK":
+    #         problem.solve(solver=cp.MOSEK, verbose=False)
+    #     else:
+    #         assert(f"Unkwon solver {self.solver}")
+    #
+    #     # Output the optimized matrix
+    #     matrix = np.maximum(np.array(X.value), 0)
+    #     row_sums = matrix.sum(axis=1, keepdims=True)
+    #
+    #     # print("var ", np.dot(np.transpose(self.prior_dist), np.square(np.sum(np.multiply(matrix/row_sums, self.normalized_objective_err_matrix), axis=1))) - 0.4**2)
+    #     # print("Expected val ", np.dot(np.transpose(self.prior_dist), np.sum(np.multiply(matrix/row_sums, self.normalized_objective_err_matrix), axis=1)))
+    #     # print("Optimized Matrix P:\n", X.value)
+    #     # print("Original Distribution Z:\n", Z)
+    #     # print("Perturbed Distribution Z:\n", np.matmul(np.transpose(Z),(matrix/row_sums)))
+    #     return {"utility": objective.value, "mechanism": matrix/row_sums}
