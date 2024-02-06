@@ -1,6 +1,7 @@
 import numpy as np
 from util_functions import *
 from divergence import *
+from simpleinfotheory import mutualinformation, entropy
 
 class Gen_Synthetic_Dataset:
     def __init__(self, no_of_states = 4, no_of_samples = 1000, alphabet = []):
@@ -50,17 +51,23 @@ class Gen_Synthetic_Dataset:
 class Gen_Synthetic_Distribution:
     
 
-    def __init__(self, original_dist = [0.5, 0.5], div_type = "TV", no_samples = 10, sample_count_per_sample = 100):
+    def __init__(self, original_dist = [0.5, 0.5], div_type = "TV", no_samples = 10, sample_count_per_sample = 100, attribute_state_count = []):
         # Parameters
         self.CONST_ITERATION_FACTOR = 200
-        self.ROUNDING_PRECISION = 2
+        self.ROUNDING_PRECISION = 1
+        self.attribute_state_count = attribute_state_count
 
         validate_distribution(original_dist, len(original_dist))
         self.__ORIGINAL_DIST = original_dist
         self.__NO_SAMPLES = no_samples
         self.__SAMPLE_COUNT_PER_SAMPLE = sample_count_per_sample
         self.DIV_TYPE = div_type
-        self.__divergence_dist_list = divide_range_into_slices(start=0, end=1, num_slices=self.__NO_SAMPLES)
+
+        if div_type == "MI":
+            # print(self.cal_mutual_info(np.ones(len(original_dist))/len(original_dist)))
+            self.__divergence_dist_list = divide_range_into_slices(start=0, end=entropy(np.ones(len(original_dist))/len(original_dist)), num_slices=self.__NO_SAMPLES)
+        else:
+            self.__divergence_dist_list = divide_range_into_slices(start=0, end=1, num_slices=self.__NO_SAMPLES)
         # print(self.__divergence_dist_list)
         self.__is_created_dist = False
         self.__synthetic_dist = {}
@@ -75,14 +82,17 @@ class Gen_Synthetic_Distribution:
 
     def create_distribution(self):
         self.__is_created_dist = True
-        MAX_ITERATIONS = self.CONST_ITERATION_FACTOR * (self.__NO_SAMPLES * self.__SAMPLE_COUNT_PER_SAMPLE)
+        MAX_ITERATIONS = self.CONST_ITERATION_FACTOR * (self.__NO_SAMPLES * self.__SAMPLE_COUNT_PER_SAMPLE)*10
         cal_div = Divergence(self.DIV_TYPE)
 
         for i in range(MAX_ITERATIONS):
             new_dist = np.abs(self.__ORIGINAL_DIST + np.random.normal(0, 1+i/20, len(self.__ORIGINAL_DIST)))
             new_dist = new_dist/np.sum(new_dist)
             # print(new_dist)
-            divergence_ = round(cal_div.cal_divergence(self.__ORIGINAL_DIST, new_dist), self.ROUNDING_PRECISION)
+            if self.DIV_TYPE == "MI":
+                divergence_ = round(self.cal_mutual_info(new_dist), self.ROUNDING_PRECISION)
+            else:
+                divergence_ = round(cal_div.cal_divergence(self.__ORIGINAL_DIST, new_dist), self.ROUNDING_PRECISION)
             # print(divergence_)
             if divergence_ in self.__synthetic_dist.keys():
                 if len(self.__synthetic_dist[divergence_]) < self.__SAMPLE_COUNT_PER_SAMPLE:
@@ -91,6 +101,15 @@ class Gen_Synthetic_Distribution:
     def interpolate(self, a, b, alpha):
         # a,b = b,a
         return alpha * a + (1-alpha) * b
+
+    def cal_mutual_info(self, p):
+        # print(self.attribute_state_count)
+        joint_p = np.zeros((self.attribute_state_count[0], self.attribute_state_count[1]))
+        width_ = (self.attribute_state_count[1])
+        for i in range(self.attribute_state_count[0]):
+            joint_p[i,:] = p[i*width_:(i+1)*width_]
+        
+        return mutualinformation(joint_p)
 
     def create_distribution_away(self):
         self.__is_created_dist = True
