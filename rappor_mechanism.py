@@ -6,49 +6,73 @@ import matplotlib.pyplot as plt
 
 
 class Rappor_mechanism(Privacy_Mechanism):
-    
-    def __init__(self, prior_dist, STATE_COUNT, INPUT_ALPHABET = [], normalized_objective_err_matrix = None, only_err_matrix = True):
+
+    def __init__(self, STATE_COUNT, INPUT_ALPHABET = [], prob_f=0.5, prob_p=0.5, prob_q=0.75, collection_count = 5):
         self.STATE_COUNT = STATE_COUNT
+        self.collection_count = collection_count
 
         if len(INPUT_ALPHABET) != STATE_COUNT:
             self.INPUT_ALPHABET = str(range(STATE_COUNT))
         elif validate_alphabet(INPUT_ALPHABET):
             self.INPUT_ALPHABET = INPUT_ALPHABET
-        
-        validate_err_matrix(err_matrix=normalized_objective_err_matrix, dim=STATE_COUNT)
-        
-        self.__mechanism = 0
-        self.__eps = -1
-        self.normalized_objective_err_matrix = normalized_objective_err_matrix
-        self.prior_dist = prior_dist
-        self.__only_error_mtrix = only_err_matrix
-        self.sensitivity = 1
+
+        self.prob_f = prob_f  # Probability of adding noise
+        self.prob_p = prob_p  # Probability of a bit being 1
+        self.prob_q = prob_q  # Probability of a bit remaining 1
 
     
-    def __exponential_mechanism__(self):
-        mechanism = np.zeros((self.STATE_COUNT, self.STATE_COUNT))
-        
-        if self.__only_error_mtrix:
-            q_function = np.ones((self.STATE_COUNT, self.STATE_COUNT)) - self.normalized_objective_err_matrix
-        else:
-            q_function = np.ones((self.STATE_COUNT, self.STATE_COUNT)) - self.normalized_objective_err_matrix*np.transpose(self.prior_dist)
-        q_function = q_function/np.max(q_function)
-        # self.sensitivity = np.max(q_function) - np.min(q_function)
+    def _apply_permanent_randomized_response(self, value):
+        """
+        Apply the first layer of RAPPOR, Permanent Randomized Response (PRR).
+        """
+        prr = np.random.choice([0, 1, value], p=[self.prob_f / 2, self.prob_f / 2, 1 - self.prob_f])
+        return prr
 
-        for i in range(self.STATE_COUNT):
-            probabilities = [exp_value(eps=self.__eps, score=score, sensitivity=self.sensitivity) for score in q_function[i,:]]
-            mechanism[i,:] = probabilities / np.linalg.norm(probabilities, ord=1)
-        # sns.heatmap(mechanism)
-        # plt.show()
-        return mechanism
+    def _apply_instantaneous_randomized_response(self, value):
+        """
+        Apply the second layer of RAPPOR, Instantaneous Randomized Response (IRR).
+        """
+        irr = np.random.choice([0, 1], p=[1 - self.prob_q if value == 1 else 1 - self.prob_p, self.prob_q if value == 1 else self.prob_p])
+        return irr
+
+    def collect_data(self, client_data):
+        """
+        Simulate data collection from clients.
+        """
+        aggregated_data = np.zeros((self.STATE_COUNT))
+        for i, value in enumerate(client_data):
+            prr = self._apply_permanent_randomized_response(value)
+            for j in range(self.collection_count):
+                irr = self._apply_instantaneous_randomized_response(prr)
+                aggregated_data[i] += irr
+        return aggregated_data
+    
+    def get_eps(self):
+        raise RuntimeError("Privacy budget us not available for RAPPOR")
+
+    def gen_random_output(self, actual_value, eps, prob_f, is_eps = False):
+        try:
+            index_of_actual_value = self.INPUT_ALPHABET.index(actual_value)
+        except ValueError:
+            print(f"{actual_value} is not in the alphabet")
+
+        if is_eps:
+            k = np.exp(eps/2)
+            self.prob_f = 2/(1+k)
+        else:
+            self.prob_f = prob_f
+            
+        bloom_filter = np.zeros(self.STATE_COUNT, dtype=int)
+        bloom_filter[index_of_actual_value] = 1
+        pertubed_value = self.collect_data(bloom_filter)
+        # print("actual ", bloom_filter, " pertubed_value ", pertubed_value)
+        perturbed_ = [self.INPUT_ALPHABET[np.argmax(pertubed_value)]]
+        # print("Actual ", actual_value, "perturbed_ ", perturbed_)
+        return perturbed_
         
 
     def get_mechanism(self, eps):
-        if self.__eps == eps:
-            return self.__mechanism
-        self.__eps = eps
-        self.__mechanism = self.__exponential_mechanism__()
-        return self.__mechanism
+        raise RuntimeError("RAPPOR does not support this method.")
 
     def get_name(self):
         return "Rappor Mechanism"
