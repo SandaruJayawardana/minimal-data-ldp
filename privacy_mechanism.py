@@ -16,7 +16,7 @@ class Privacy_Mechanism:
             Output format:
             [[p(y0|x0), p(y1|x0), p(y2|x0)], [p(y0|x1), p(y1|x1), p(y2|x1)], [p(y0|x2), p(y1|x2), p(y2|x2)]]
         '''
-        assert("cal_probabilities is not implemented")
+        assert False, "cal_probabilities is not implemented"
 
     def get_eps(self):
         return self.__eps
@@ -40,5 +40,5 @@ class Privacy_Mechanism:
         return np.sum(input_probability * np.sum(self.get_mechanism(eps) * self.normalized_objective_err_matrix, axis= 1))
 
     def get_name(self):
-        assert("get_name is not implemented")
+        assert False, "get_name is not implemented"
     
