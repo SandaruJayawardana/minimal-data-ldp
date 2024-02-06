@@ -11,4 +11,4 @@ class Divergence:
         if self.DIV_TYPE == "TV":
             return cal_tv(p, q)
         else:
-            assert(f"Not implemented {self.DIV_TYPE}")
+            raise RuntimeError(f"Not implemented {self.DIV_TYPE}")
