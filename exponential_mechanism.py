@@ -34,8 +34,8 @@ class Exponential_mechanism(Privacy_Mechanism):
             q_function = np.ones((self.STATE_COUNT, self.STATE_COUNT)) - self.normalized_objective_err_matrix
         else:
             q_function = np.ones((self.STATE_COUNT, self.STATE_COUNT)) - self.normalized_objective_err_matrix*np.transpose(self.prior_dist)
-        q_function = q_function/np.max(q_function)
-        # self.sensitivity = np.max(q_function) - np.min(q_function)
+        q_function = q_function*5 #/np.max(q_function)
+        self.sensitivity = np.max(q_function) - np.min(q_function)
 
         for i in range(self.STATE_COUNT):
             probabilities = [exp_value(eps=self.__eps, score=score, sensitivity=self.sensitivity) for score in q_function[i,:]]
