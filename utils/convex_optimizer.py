@@ -4,7 +4,7 @@
 
 import cvxpy as cp
 import numpy as np
-from util_functions import *
+from utils.util_functions import *
 
 class Optimizer:
     def __init__(self, prior_dist, normalized_objective_err_matrix, TOLERANCE_MARGIN = 0.01, APPROXIMATION = "LINEAR", STATE_COUNT = 4, solver = "SCS", is_kl_div = True, ALPHA=0.01, alphabet = []):

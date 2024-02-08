@@ -3,8 +3,8 @@
 '''
 
 import numpy as np
-from util_functions import *
-from randomized_response import random_response_mechanism
+from utils.util_functions import *
+from utils.randomized_response import random_response_mechanism
 
 class Repetitive_optimizer:
     def __init__(self, prior_dist, normalized_err_matrix, TOLERANCE_MARGIN = 0.01, APPROXIMATION = "LINEAR", STATE_COUNT = 4):

@@ -1,7 +1,7 @@
 import numpy as np
-from util_functions import *
-from divergence import *
-from simpleinfotheory import mutualinformation, entropy
+from utils.util_functions import *
+from utils.divergence import *
+from utils.simpleinfotheory import mutualinformation, entropy
 
 class Gen_Synthetic_Dataset:
     def __init__(self, no_of_states = 4, no_of_samples = 1000, alphabet = []):

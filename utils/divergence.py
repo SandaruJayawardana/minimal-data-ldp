@@ -1,4 +1,4 @@
-from util_functions import *
+from utils.util_functions import *
 
 class Divergence:
     def __init__(self, type):

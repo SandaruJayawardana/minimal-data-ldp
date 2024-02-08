@@ -1,6 +1,6 @@
 import numpy as np
-from privacy_mechanism import *
-from util_functions import *
+from utils.privacy_mechanism import *
+from utils.util_functions import *
 
 def random_response_mechanism(alphabet_size, eps):
     vector = (np.exp(eps))*np.ones(alphabet_size)-1

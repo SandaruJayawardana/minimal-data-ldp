@@ -1,8 +1,8 @@
 import numpy as np
-from privacy_mechanism import *
-from util_functions import *
-from convex_optimizer import *
-from randomized_response import Randomized_Response
+from utils.privacy_mechanism import *
+from utils.util_functions import *
+from utils.convex_optimizer import *
+from utils.randomized_response import Randomized_Response
 
 class Optimized_Randomized_Response(Privacy_Mechanism):
     
