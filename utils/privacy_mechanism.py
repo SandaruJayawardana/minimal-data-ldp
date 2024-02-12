@@ -22,10 +22,11 @@ class Privacy_Mechanism:
         return self.__eps
 
     def gen_random_output(self, actual_value, eps, is_index = False):
+        # print(f"{actual_value}  alphabet {self.INPUT_ALPHABET}")
         try:
             index_of_actual_value = self.INPUT_ALPHABET.index(actual_value)
         except ValueError:
-            print(f"{actual_value} is not in the alphabet")
+            print(f"{actual_value} is not in the alphabet {self.INPUT_ALPHABET}")
             
         prob_vec = self.get_mechanism(eps)[index_of_actual_value,:]
         random_ = np.random.choice(len(self.INPUT_ALPHABET) if is_index else self.INPUT_ALPHABET, 1, p=prob_vec)

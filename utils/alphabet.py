@@ -38,12 +38,15 @@ def propotion_creator(selected_values = [], remaining_alphabet = []):
 def convert_alphabet_to_string(alphabet):
     converted_alphabet = []
     # print("a ", alphabet)
-    l, w = np.shape(alphabet)
+    # l, w = np.shape(alphabet)
     # print(l, w)
     for j in range(len(alphabet)):
         v = ""
-        for k in range(len(alphabet[0])):
-            v += str(alphabet[j][k]) + " "
+        if isinstance(alphabet[0], list) or isinstance(alphabet[0], np.ndarray):
+            for k in range(len(alphabet[0])):
+                v += str(alphabet[j][k]) + " "
+        else:
+            v += str(alphabet[j])
         converted_alphabet.append(v)
     return converted_alphabet
 
