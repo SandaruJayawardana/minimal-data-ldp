@@ -1,3 +1,5 @@
 *.pdf
 *.venv
 *.idea
+*.tmp.drivedownload
+*.tmp.driveupload
