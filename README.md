@@ -1,6 +1,11 @@
 # Minimal-data-collection-guarantee
 
-## File structure:
+## Prerequisites
+
+numpy
+cvxpy
+
+## File structure
 
 
 minimal-data-ldp/
