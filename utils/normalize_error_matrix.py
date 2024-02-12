@@ -57,10 +57,15 @@ class Normalize_error_matrix:
     
     def err(self, actual, perturbed):
         # print("actual", actual, "perturbed", perturbed)
-        actual_arr = np.zeros(len(self.alphabet[0]), dtype=np.int64)
-        perturb_arr = np.zeros(len(self.alphabet[0]), dtype=np.int64)
+        if isinstance(self.alphabet[0], list) or isinstance(self.alphabet[0], np.ndarray):
+            actual_arr = np.zeros(len(self.alphabet[0]), dtype=np.int64)
+            perturb_arr = np.zeros(len(self.alphabet[0]), dtype=np.int64)
+        else:
+            Warning("Can make errros!")
+            actual_arr = np.zeros(1, dtype=np.int64)
+            perturb_arr = np.zeros(1, dtype=np.int64)
         err = 0
-        for k in range(len(self.alphabet[0])):
+        for k in range(len(actual_arr)):
             attribute = self.attribute_list[k]
             # print("attribute", attribute)
             if attribute in list(self.priority_dict.keys()):
@@ -68,8 +73,12 @@ class Normalize_error_matrix:
             else:
                 priority = 1
             # print("priority", priority)
-            actual_arr[k] = int(actual[k])*priority
-            perturb_arr[k] = int(perturbed[k])*priority
+            if isinstance(self.alphabet[0], list) or isinstance(self.alphabet[0], np.ndarray):
+                actual_arr[k] = int(actual[k])*priority
+                perturb_arr[k] = int(perturbed[k])*priority
+            else:
+                actual_arr[k] = int(actual)*priority
+                perturb_arr[k] = int(perturbed)*priority
             # err += error_cal(actual=actual[k], perturbed=perturbed[k], err_type="l1")*priority
             # print("error_cal", error_cal(actual=actual[k], perturbed=perturbed[k], err_type="0_1")*priority)
         

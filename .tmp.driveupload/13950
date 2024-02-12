@@ -1,0 +1,6 @@
+0000000000000000000000000000000000000000 a7b0318c718949fb3526677f5280907123957b01 SandaruJayawardana <sandaru.jayawardana@gmail.com> 1707383351 +1100	branch: Created from main
+a7b0318c718949fb3526677f5280907123957b01 acdeb69c23426313bc5c7ad4ef1607b77f61db4c SandaruJayawardana <sandaru.jayawardana@gmail.com> 1707383529 +1100	commit: Clean convex_optimizer.py
+acdeb69c23426313bc5c7ad4ef1607b77f61db4c 20c611f4e0cbc08c5c0326423352a53d73d276d6 SandaruJayawardana <sandaru.jayawardana@gmail.com> 1707384827 +1100	commit: Update Readme
+20c611f4e0cbc08c5c0326423352a53d73d276d6 8bcb132674f9b83733acce47f18e208c10763315 SandaruJayawardana <sandaru.jayawardana@gmail.com> 1707386129 +1100	pull --tags origin individual-attribute-optimization: Fast-forward
+8bcb132674f9b83733acce47f18e208c10763315 0f66169ad02738ab98f91485de7075d57cfcc1de SandaruJayawardana <sandaru.jayawardana@gmail.com> 1707713677 +1100	commit: Add revised optimization
+0f66169ad02738ab98f91485de7075d57cfcc1de 83e37eaded905b9a939585d56c8c9aa0cdf00cdd SandaruJayawardana <sandaru.jayawardana@gmail.com> 1707713709 +1100	commit: Fix error matrix generator
