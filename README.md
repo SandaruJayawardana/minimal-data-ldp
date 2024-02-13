@@ -1,6 +1,11 @@
 # Minimal-data-collection-guarantee
 
-## File structure:
+## Prerequisites
+
+numpy
+cvxpy
+
+## File structure
 
 
 minimal-data-ldp/
@@ -28,3 +33,5 @@ minimal-data-ldp/
                 ├── simpleinfotheory.py Information theoretic calculations
                 ├── util_functions.py Necessary utility functions (Validating values etc.)
     
+## Exmaples:
+1. [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SandaruJayawardana/minimal-data-ldp/blob/main/mldp-example.ipynb)
