@@ -1,8 +1,8 @@
 import numpy as np
-from utils.privacy_mechanism import *
+from mechanisms.privacy_mechanism import *
 from utils.util_functions import *
-from utils.convex_optimizer import *
-from utils.randomized_response import Randomized_Response
+from mechanisms.mldp.convex_optimizer import *
+from mechanisms.k_rr.k_rr_mechanism import Randomized_Response
 
 class Optimized_Randomized_Response(Privacy_Mechanism):
     
@@ -36,6 +36,7 @@ class Optimized_Randomized_Response(Privacy_Mechanism):
             return self.__mechanism
         if self.accelerate_from_rr:
             if self.close_to_rr and eps > self.eps_at_close_to_rr:
+                print("Approximated")
                 self.__mechanism = self.random_response_mechanism.get_mechanism(eps=eps)
                 self.__eps = eps
                 return self.__mechanism
