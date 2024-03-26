@@ -1,6 +1,36 @@
 import numpy as np
 import math
 
+# I(A;B|C,D)
+def generalized_mutual_information(dataset, total_alphabet, list_of_individiual_alphabet, a_index, b_index, c_index, d_index):
+    processed_a = []
+    for i in dataset:
+        actual_split = i.split(" ")
+        actual = []
+        # print(actual_split)
+        for j in actual_split:
+            # print(i)
+            if j != "" :
+                actual.append(int(j))
+        processed_a.append(np.array(actual))
+    processed_a = np.array(processed_a)
+
+    symbols = np.unique(dataset, axis=0)
+    
+    # It would be faster to call:
+    [symbols, counts] = np.unique(dataset, axis=0, return_counts=True)
+
+    joint_prob_dict = {}
+    total_count = len(total_alphabet)
+
+    for i in total_alphabet:
+        joint_prob_dict[i] = 1
+
+    for index_i, i in symbols:
+        joint_prob_dict[i] = counts[index_i]
+        total_count += counts[index_i]
+
+
 """function infocontent(p)
 Computes the Shannon information content for an outcome x of a random variable
 X with probability p.
@@ -510,3 +540,59 @@ def conditionalmutualinformationempirical(xn, yn, zn):
     result = H_X_given_Z + H_Y_given_Z - H_XY_given_Z;
     return result
 
+def get_combined_dataset(Yn, selected_indexes):
+    index_count = len(selected_indexes)
+
+    if index_count == 1:
+        return Yn[:,selected_indexes[0]]
+    
+    new_data = []
+    data_count = len(Yn)
+    
+    for i in range(data_count):
+        new_ = ""
+        for j in range(index_count):
+            new_ += str(Yn[i][j]) + " "
+        new_data.append(new_)
+    
+    return np.array(new_data)
+
+def multivariate_mutual_information(xn, Yn):
+
+    pair_wise_mi = {}
+    sorted_pair_wise_mi_list = []
+    for index_i in range(np.shape(Yn)[1]):
+        i = Yn[:,index_i]
+        # print(len(xn), type(xn), xn)
+        # print(len(i), type(i), i)
+        current_value = mutualinformationempirical(xn, i)[0]
+        pair_wise_mi[index_i] = current_value
+        if len(sorted_pair_wise_mi_list) == 0:
+            sorted_pair_wise_mi_list = [index_i]
+        else:
+            is_added = False
+            for index_j, j in enumerate(sorted_pair_wise_mi_list):
+                if pair_wise_mi[j] < current_value:
+                    sorted_pair_wise_mi_list = sorted_pair_wise_mi_list[:index_j] + [index_i] + sorted_pair_wise_mi_list[index_j:]
+                    is_added = True
+                    break
+            if not(is_added):
+                sorted_pair_wise_mi_list.append(index_i)
+
+    total_mutual_info = pair_wise_mi[sorted_pair_wise_mi_list[0]]
+
+    selected_indexes = []
+
+    print("sorted_pair_wise_mi_list ", sorted_pair_wise_mi_list)
+
+    for index_i, i in enumerate(sorted_pair_wise_mi_list[1:]):
+        print("index_i", index_i)
+        print("total_mutual_info ", total_mutual_info)
+        selected_indexes.append(sorted_pair_wise_mi_list[index_i])
+        zn_new_variable = get_combined_dataset(Yn=Yn, selected_indexes=selected_indexes)
+        # print(np.unique(zn_new_variable), zn_new_variable)
+        conditional_mi = conditionalmutualinformationempirical(xn=xn, yn=Yn[:,i], zn=zn_new_variable)
+        # if conditional_mi < total_mutual_info*0.0001:
+        #     total_mutual_info += conditional_mi
+        #     break
+        total_mutual_info += conditional_mi
