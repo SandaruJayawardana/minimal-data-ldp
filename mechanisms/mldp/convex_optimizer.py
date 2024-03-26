@@ -33,7 +33,7 @@ class Optimizer:
         return solution["utility"]
 
     def get_mechanism(self, eps, min_utility_err = 0,  max_var = 0):
-        print(eps)
+        # print(eps)
         solution = self.optimize(eps=eps, min_utility_err=min_utility_err, max_var=max_var)
         self.__optimal_mechanism = solution["mechanism"]
         return self.__optimal_mechanism

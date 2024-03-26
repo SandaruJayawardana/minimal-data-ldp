@@ -23,3 +23,12 @@ class Dataset_encoder():
                 dataset[column] = self.__encoder_dict[self.__encoder_dict[column]].decode_values(dataset[column])
         
         return dataset
+    
+# class Dataset_Encoder_New():
+#     def __init__(self, dataset, alphabet_dict):
+#         for index, row in dataset.iterrows():
+#             for i in dataset.columns:
+
+
+#     def get_encodered_dataset(self):
+#         return self.encodered_dataset

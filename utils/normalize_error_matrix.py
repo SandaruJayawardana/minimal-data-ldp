@@ -16,7 +16,7 @@ def error_cal(actual, perturbed, alphabet_dict={}, err_type = "0_1", check = Fal
         raise TypeError(f"Unknown error type {err_type}")
 
 class Normalize_error_matrix:
-    def __init__(self, attribute_list, alphabet, priority_dict, alphabet_dict = {}, err_type = "0_1"):
+    def __init__(self, attribute_list, alphabet, priority_dict, alphabet_dict = {}, err_type = "0_1", skip_error_matrix = False):
         # print(alphabet)
         self.attribute_list = attribute_list
         self.alphabet = alphabet
@@ -26,17 +26,18 @@ class Normalize_error_matrix:
 
         self.normalized_error_matrix = np.zeros((len(alphabet), len(alphabet)))
         # print(np.shape(self.normalized_error_matrix))
-
-        for index_i, i in enumerate(alphabet): # input
-            for index_j, j in enumerate(alphabet): # output
-                # print("i", i, "j", j)
-                # print(self.normalized_error_matrix[i][j])
-                # print(index_i, index_j)
-                # print(i, j)
-                err = self.err(i, j)
-                self.normalized_error_matrix[index_i][index_j] = err
-        self.__max_value = np.max(self.normalized_error_matrix)
-        self.normalized_error_matrix /= self.__max_value
+        self.__max_value = 1
+        if not(skip_error_matrix):
+            for index_i, i in enumerate(alphabet): # input
+                for index_j, j in enumerate(alphabet): # output
+                    # print("i", i, "j", j)
+                    # print(self.normalized_error_matrix[i][j])
+                    # print(index_i, index_j)
+                    # print(i, j)
+                    err = self.err(i, j)
+                    self.normalized_error_matrix[index_i][index_j] = err
+            self.__max_value = np.max(self.normalized_error_matrix)
+            self.normalized_error_matrix /= self.__max_value
 
     # Original
     # def err(self, actual, perturbed):
@@ -55,7 +56,11 @@ class Normalize_error_matrix:
     #     # print("err", err)
     #     return err
     
-    def err(self, actual, perturbed):
+    def err(self, actual, perturbed, skip_ = False):
+        # print("actual", actual, perturbed)
+        if not(skip_):
+            actual = self.alphabet.index(actual)
+            perturbed = self.alphabet.index(perturbed)
         # print("actual", actual, "perturbed", perturbed)
         if isinstance(self.alphabet[0], list) or isinstance(self.alphabet[0], np.ndarray):
             actual_arr = np.zeros(len(self.alphabet[0]), dtype=np.int64)
@@ -73,7 +78,7 @@ class Normalize_error_matrix:
             else:
                 priority = 1
             # print("priority", priority)
-            if isinstance(self.alphabet[0], list) or isinstance(self.alphabet[0], np.ndarray):
+            if (isinstance(self.alphabet[0], list) or isinstance(self.alphabet[0], np.ndarray)) and (isinstance(actual, list) or isinstance(actual, np.ndarray)):
                 actual_arr[k] = int(actual[k])*priority
                 perturb_arr[k] = int(perturbed[k])*priority
             else:
@@ -90,6 +95,9 @@ class Normalize_error_matrix:
         return err
 
     def get_value_error(self, actual, perturbed):
+        # print("self.alphabet",self.alphabet)
+        actual = self.alphabet.index(actual)
+        perturbed = self.alphabet.index(perturbed)
         # print(actual, perturbed)
         if isinstance(actual, str):
             actual_split = actual.split(" ")
@@ -108,5 +116,12 @@ class Normalize_error_matrix:
                     perturbed.append(int(i))
             perturbed = np.array(perturbed)
         # print(actual, perturbed)
-        err = self.err(actual=actual, perturbed=perturbed)
+        err = self.err(actual=actual, perturbed=perturbed, skip_=True)
         return err/self.__max_value
+
+    def get_value_error_temp(self, actual, perturbed):
+        if actual == perturbed:
+            return 0
+        else:
+            return 1
+        

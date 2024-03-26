@@ -1,5 +1,5 @@
 import numpy as np
-from utils.privacy_mechanism import *
+from mechanisms.privacy_mechanism import *
 from utils.util_functions import *
 
 def random_response_mechanism(alphabet_size, eps):

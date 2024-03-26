@@ -16,6 +16,24 @@ def create_alphabet(attributes_with_alphabet):
     aggregated_alphabet = np.array(propotion_creator(selected_values = [], remaining_alphabet = remaining_alphabet))
     return aggregated_alphabet
 
+def create_alphabet_ordered(attributes_with_alphabet, ordered_attribute_list):
+    if not(isinstance(attributes_with_alphabet, dict)):
+        raise TypeError(f"attributes_with_alphabet should be a dictionary. Found {type(attributes_with_alphabet)}")
+    
+    attribute_list = ordered_attribute_list # list(attributes_with_alphabet.keys())
+    attribute_list.reverse()
+    # print("revere", ordered_attribute_list, attribute_list)
+    attribute_count = len(attribute_list)
+    num_propotions = 1
+
+    remaining_alphabet = []
+    for i in attribute_list:
+        num_propotions *= len(attributes_with_alphabet[i])
+        remaining_alphabet.append(attributes_with_alphabet[i])
+
+    aggregated_alphabet = np.array(propotion_creator(selected_values = [], remaining_alphabet = remaining_alphabet))
+    return aggregated_alphabet
+
 def propotion_creator(selected_values = [], remaining_alphabet = []):
     # print("selected_values", selected_values, "remaining_alphabet", remaining_alphabet)
     created_values = []
@@ -49,5 +67,13 @@ def convert_alphabet_to_string(alphabet):
             v += str(alphabet[j])
         converted_alphabet.append(v)
     return converted_alphabet
+
+def get_alphabet_dict_from_data(data):
+    attributes = list(data.columns)
+    alphabet_dict = {}
+    for i in attributes:
+        alphabet = np.unique(data[i])
+        alphabet_dict[i] = list(alphabet)
+    return alphabet_dict
 
 # print(propotion_creator([], [[1, 2, 3], [4, 5], [5, 6, 7 , 8, 9]]))

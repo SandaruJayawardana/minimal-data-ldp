@@ -1,5 +1,5 @@
 import numpy as np
-from utils.privacy_mechanism import *
+from mechanisms.privacy_mechanism import *
 from utils.util_functions import *
 import matplotlib.pyplot as plt
 # import seaborn as sns
