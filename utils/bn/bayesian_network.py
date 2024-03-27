@@ -81,7 +81,7 @@ class BN():
         for i in self.attribute_list:
             get_level_value(i, nodes_weight_dict, parent_node_dict)
         self.ordered_attribute_list = sorted(nodes_weight_dict, key=nodes_weight_dict.get) #, reverse=True)
-
+        self.ordered_attribute_list.reverse()
 # print("Ordered keys in descending order:", sorted_keys_desc)
 
         print(len(nodes_weight_dict))
