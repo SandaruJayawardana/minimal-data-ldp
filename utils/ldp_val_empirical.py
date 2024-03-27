@@ -48,8 +48,8 @@ class LDP_Empirical_Validator():
                 self.individual_x_index_of_alphabet_dict[__attribute][__alphabet_val] = []
                 for index_i, i in enumerate(alphabet_list):
                     # print(i[NUM_ATTRIBUTES - 1 - __attribute_num], __alphabet_val)
-                    if i[NUM_ATTRIBUTES - 1 - __attribute_num] == __alphabet_val:
-                    # if i[__attribute_num] == __alphabet_val:
+                    # if i[NUM_ATTRIBUTES - 1 - __attribute_num] == __alphabet_val:
+                    if i[__attribute_num] == __alphabet_val:
                         # print("Trig")
                         self.individual_x_index_of_alphabet_dict[__attribute][__alphabet_val].append(index_i)
 
